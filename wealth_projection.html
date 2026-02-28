@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wealth Projection — ₹10,00,000</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0b0e17;
+    --bg2: #111520;
+    --card: #161b28;
+    --card2: #1c2235;
+    --border: #252d42;
+    --accent: #00e5a0;
+    --gold: #f5c842;
+    --red: #ff5e5e;
+    --blue: #4da6ff;
+    --muted: #6b7494;
+    --text: #e2e6f0;
+    --ink: #fff;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; min-height: 100vh; }
+
+  .header {
+    background: linear-gradient(135deg, #0b0e17 0%, #0f1a2e 100%);
+    padding: 40px 44px 36px;
+    border-bottom: 1px solid var(--border);
+    position: relative; overflow: hidden;
+  }
+  .header::before {
+    content: '₹';
+    position: absolute; right: 40px; top: -20px;
+    font-family: 'Syne', sans-serif; font-size: 10rem; font-weight: 800;
+    color: rgba(0,229,160,0.04); pointer-events: none;
+  }
+  .eyebrow { font-family: 'IBM Plex Mono', monospace; font-size: 0.7rem; letter-spacing: 2px; color: var(--accent); text-transform: uppercase; margin-bottom: 10px; }
+  .header h1 { font-family: 'Syne', sans-serif; font-size: 2.2rem; font-weight: 800; color: #fff; letter-spacing: -1px; }
+  .header h1 span { color: var(--gold); }
+  .header-sub { color: var(--muted); font-size: 0.88rem; margin-top: 8px; }
+
+  .controls {
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    padding: 24px 44px;
+    display: flex; gap: 40px; flex-wrap: wrap; align-items: center;
+  }
+  .control-group { display: flex; flex-direction: column; gap: 6px; }
+  .ctrl-label { font-family: 'IBM Plex Mono', monospace; font-size: 0.65rem; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); }
+  .ctrl-val { font-family: 'Syne', sans-serif; font-size: 1.3rem; font-weight: 700; color: var(--ink); }
+  .ctrl-val span { color: var(--accent); }
+  input[type=range] {
+    -webkit-appearance: none; width: 180px; height: 4px;
+    background: var(--border); border-radius: 4px; outline: none; cursor: pointer;
+  }
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none; width: 16px; height: 16px;
+    border-radius: 50%; background: var(--accent); cursor: pointer;
+    box-shadow: 0 0 8px rgba(0,229,160,0.5);
+  }
+
+  .main { padding: 36px 44px; max-width: 1300px; margin: 0 auto; }
+
+  /* Big number cards */
+  .big-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 36px; }
+  .big-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 24px 22px;
+    position: relative; overflow: hidden;
+    transition: transform 0.2s;
+  }
+  .big-card:hover { transform: translateY(-2px); }
+  .big-card::after {
+    content: '';
+    position: absolute; bottom: 0; left: 0; right: 0; height: 2px;
+    background: var(--card-color, var(--border));
+  }
+  .bc-label { font-family: 'IBM Plex Mono', monospace; font-size: 0.62rem; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
+  .bc-val { font-family: 'Syne', sans-serif; font-size: 1.6rem; font-weight: 800; color: var(--ink); line-height: 1; }
+  .bc-sub { font-size: 0.75rem; color: var(--muted); margin-top: 6px; }
+  .bc-growth { font-family: 'IBM Plex Mono', monospace; font-size: 0.78rem; margin-top: 8px; }
+
+  /* Chart */
+  .chart-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 28px;
+    margin-bottom: 28px;
+  }
+  .chart-title { font-family: 'Syne', sans-serif; font-size: 1rem; font-weight: 700; color: #fff; margin-bottom: 6px; }
+  .chart-sub { font-size: 0.78rem; color: var(--muted); margin-bottom: 24px; }
+
+  .chart-area { position: relative; height: 260px; }
+  svg.linechart { width: 100%; height: 100%; overflow: visible; }
+
+  /* Year table */
+  .year-table { width: 100%; border-collapse: collapse; }
+  .year-table th {
+    font-family: 'IBM Plex Mono', monospace; font-size: 0.62rem; letter-spacing: 1.2px;
+    text-transform: uppercase; color: var(--muted); padding: 10px 16px;
+    text-align: left; border-bottom: 1px solid var(--border);
+  }
+  .year-table td { padding: 11px 16px; font-size: 0.83rem; border-bottom: 1px solid var(--border); }
+  .year-table tr:last-child td { border-bottom: none; }
+  .year-table tr:hover td { background: var(--card2); }
+  .yr { font-family: 'IBM Plex Mono', monospace; color: var(--muted); }
+  .val-low { color: #ff5e5e; font-weight: 500; }
+  .val-base { color: var(--gold); font-weight: 600; }
+  .val-high { color: var(--accent); font-weight: 600; }
+  .highlight-row td { background: rgba(245,200,66,0.06) !important; }
+  .milestone-badge {
+    display: inline-block; font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.58rem; padding: 2px 7px; border-radius: 10px;
+    background: rgba(0,229,160,0.12); color: var(--accent);
+    margin-left: 8px; letter-spacing: 0.5px;
+  }
+
+  /* Scenario explainer */
+  .scenarios { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; margin-bottom: 28px; }
+  @media (max-width: 700px) { .scenarios { grid-template-columns: 1fr; } }
+  .sc-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px 20px;
+  }
+  .sc-rate { font-family: 'Syne', sans-serif; font-size: 1.4rem; font-weight: 800; margin-bottom: 4px; }
+  .sc-name { font-size: 0.78rem; color: var(--muted); margin-bottom: 10px; }
+  .sc-desc { font-size: 0.78rem; color: var(--text); line-height: 1.6; }
+
+  .inflation-note {
+    background: rgba(255,94,94,0.07);
+    border: 1px solid rgba(255,94,94,0.2);
+    border-radius: 10px; padding: 18px 22px;
+    font-size: 0.82rem; color: var(--text); line-height: 1.7;
+    margin-bottom: 28px;
+  }
+  .inflation-note strong { color: #ff8f8f; }
+
+  .disclaimer { font-size: 0.72rem; color: var(--muted); line-height: 1.7; padding: 20px 0; border-top: 1px solid var(--border); }
+
+  @keyframes countUp { from { opacity:0; transform: scale(0.95); } to { opacity:1; transform: scale(1); } }
+  .bc-val { animation: countUp 0.4s ease; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="eyebrow">Wealth Projection Calculator</div>
+  <h1>₹<span>10,00,000</span> Invested Today</h1>
+  <div class="header-sub">31 funds · Lump sum · Aggressive retirement portfolio · 15–25 year horizon</div>
+</div>
+
+<div class="controls">
+  <div class="control-group">
+    <div class="ctrl-label">Target Return Rate</div>
+    <div class="ctrl-val" id="rate-display"><span>15</span>% CAGR</div>
+    <input type="range" id="rate-slider" min="10" max="25" value="15" step="0.5" oninput="update()">
+  </div>
+  <div class="control-group">
+    <div class="ctrl-label">Time Horizon</div>
+    <div class="ctrl-val" id="years-display"><span>20</span> Years</div>
+    <input type="range" id="years-slider" min="5" max="30" value="20" step="1" oninput="update()">
+  </div>
+  <div class="control-group">
+    <div class="ctrl-label">Expense / Commission (deducted)</div>
+    <div class="ctrl-val" id="cost-display"><span>1.5</span>% p.a.</div>
+    <input type="range" id="cost-slider" min="0.5" max="3" value="1.5" step="0.25" oninput="update()">
+  </div>
+  <div class="control-group">
+    <div class="ctrl-label">Inflation Rate</div>
+    <div class="ctrl-val" id="infl-display"><span>6</span>% p.a.</div>
+    <input type="range" id="infl-slider" min="4" max="8" value="6" step="0.5" oninput="update()">
+  </div>
+</div>
+
+<div class="main">
+
+  <!-- Scenario cards -->
+  <div class="scenarios">
+    <div class="sc-card" style="border-color: rgba(255,94,94,0.3);">
+      <div class="sc-rate" style="color:#ff5e5e" id="sc-low-rate">12% CAGR</div>
+      <div class="sc-name">Conservative Scenario</div>
+      <div class="sc-desc">Market underperforms or correction years drag returns. Still a realistic outcome for some funds in your mix.</div>
+    </div>
+    <div class="sc-card" style="border-color: rgba(245,200,66,0.3);">
+      <div class="sc-rate" style="color:var(--gold)" id="sc-base-rate">15% CAGR</div>
+      <div class="sc-name">Base Case (Your Target)</div>
+      <div class="sc-desc">Your stated goal after costs. Achievable with India's structural growth story over 15–25 years. Most likely long-run outcome.</div>
+    </div>
+    <div class="sc-card" style="border-color: rgba(0,229,160,0.3);">
+      <div class="sc-rate" style="color:var(--accent)" id="sc-high-rate">20% CAGR</div>
+      <div class="sc-name">Optimistic Scenario</div>
+      <div class="sc-desc">Mirrors your last 3 years of performance sustained. Exceptional but possible if small/mid-cap continues structural bull run.</div>
+    </div>
+  </div>
+
+  <!-- Big number cards -->
+  <div class="big-cards" id="big-cards">
+    <!-- filled by JS -->
+  </div>
+
+  <!-- Line chart -->
+  <div class="chart-card">
+    <div class="chart-title">Wealth Growth Over Time — 3 Scenarios</div>
+    <div class="chart-sub">Gross returns before inflation adjustment. Slide the controls above to explore different outcomes.</div>
+    <div class="chart-area">
+      <svg class="linechart" id="chart" viewBox="0 0 900 260" preserveAspectRatio="none"></svg>
+    </div>
+    <div style="display:flex; gap:24px; margin-top:16px; flex-wrap:wrap;">
+      <div style="display:flex;align-items:center;gap:8px;"><div style="width:28px;height:3px;background:#ff5e5e;border-radius:2px;"></div><span style="font-size:0.75rem;color:var(--muted);">Conservative</span></div>
+      <div style="display:flex;align-items:center;gap:8px;"><div style="width:28px;height:3px;background:#f5c842;border-radius:2px;"></div><span style="font-size:0.75rem;color:var(--muted);">Base Case (Your Target)</span></div>
+      <div style="display:flex;align-items:center;gap:8px;"><div style="width:28px;height:3px;background:#00e5a0;border-radius:2px;"></div><span style="font-size:0.75rem;color:var(--muted);">Optimistic</span></div>
+      <div style="display:flex;align-items:center;gap:8px;"><div style="width:28px;height:3px;background:rgba(245,200,66,0.3);border-radius:2px;border-top:2px dashed #f5c842;"></div><span style="font-size:0.75rem;color:var(--muted);">Real Value (Inflation-adjusted)</span></div>
+    </div>
+  </div>
+
+  <!-- Inflation note -->
+  <div class="inflation-note" id="infl-note">
+    <!-- filled by JS -->
+  </div>
+
+  <!-- Year by year table -->
+  <div class="chart-card">
+    <div class="chart-title">Year-by-Year Projection</div>
+    <div class="chart-sub">Nominal value across all 3 scenarios. Gold rows = milestone years.</div>
+    <table class="year-table">
+      <thead>
+        <tr>
+          <th>Year</th>
+          <th>Age of Investment</th>
+          <th class="val-low">Conservative</th>
+          <th class="val-base">Base Case (15%)</th>
+          <th class="val-high">Optimistic</th>
+          <th>Real Value (Inflation-adj.)</th>
+        </tr>
+      </thead>
+      <tbody id="year-table-body"></tbody>
+    </table>
+  </div>
+
+  <div class="disclaimer">
+    ⚠️ <strong>Disclaimer:</strong> All projections are mathematical illustrations based on constant compounding rates and do not guarantee actual returns. Mutual fund investments are subject to market risks. Past performance (including your recent 20%+ returns) is not indicative of future results. Returns shown are pre-tax; actual post-tax returns will vary. LTCG at 12.5% applies on equity gains above ₹1.25 lakh per year. Consult a SEBI-registered investment advisor before making financial decisions.
+  </div>
+
+</div>
+
+<script>
+const PRINCIPAL = 1000000;
+
+function fmt(n) {
+  if (n >= 10000000) return '₹' + (n/10000000).toFixed(2) + ' Cr';
+  if (n >= 100000) return '₹' + (n/100000).toFixed(2) + ' L';
+  return '₹' + Math.round(n).toLocaleString('en-IN');
+}
+function fmtShort(n) {
+  if (n >= 10000000) return '₹' + (n/10000000).toFixed(1) + ' Cr';
+  if (n >= 100000) return '₹' + (n/100000).toFixed(1) + ' L';
+  return '₹' + Math.round(n).toLocaleString('en-IN');
+}
+
+function compound(p, rate, years) {
+  return p * Math.pow(1 + rate/100, years);
+}
+
+function update() {
+  const baseRate = parseFloat(document.getElementById('rate-slider').value);
+  const years = parseInt(document.getElementById('years-slider').value);
+  const cost = parseFloat(document.getElementById('cost-slider').value);
+  const infl = parseFloat(document.getElementById('infl-slider').value);
+
+  const lowRate = Math.max(baseRate - 3, 8);
+  const highRate = baseRate + 5;
+  const netBase = baseRate - cost;
+  const netLow = lowRate - cost;
+  const netHigh = highRate - cost;
+
+  document.getElementById('rate-display').innerHTML = `<span>${baseRate}</span>% CAGR`;
+  document.getElementById('years-display').innerHTML = `<span>${years}</span> Years`;
+  document.getElementById('cost-display').innerHTML = `<span>${cost}</span>% p.a.`;
+  document.getElementById('infl-display').innerHTML = `<span>${infl}</span>% p.a.`;
+
+  document.getElementById('sc-low-rate').textContent = lowRate + '% CAGR';
+  document.getElementById('sc-base-rate').textContent = baseRate + '% CAGR';
+  document.getElementById('sc-high-rate').textContent = highRate + '% CAGR';
+
+  const valBase = compound(PRINCIPAL, netBase, years);
+  const valLow = compound(PRINCIPAL, netLow, years);
+  const valHigh = compound(PRINCIPAL, netHigh, years);
+  const valReal = compound(PRINCIPAL, netBase - infl, years);
+
+  // Big cards
+  const multBase = (valBase/PRINCIPAL).toFixed(1);
+  const multLow = (valLow/PRINCIPAL).toFixed(1);
+  const multHigh = (valHigh/PRINCIPAL).toFixed(1);
+
+  document.getElementById('big-cards').innerHTML = `
+    <div class="big-card" style="--card-color:#f5c842;">
+      <div class="bc-label">Invested</div>
+      <div class="bc-val">₹10,00,000</div>
+      <div class="bc-sub">One-time lump sum today</div>
+      <div class="bc-growth" style="color:var(--muted);">Spread across 31 funds</div>
+    </div>
+    <div class="big-card" style="--card-color:#ff5e5e;">
+      <div class="bc-label">Conservative (${lowRate}% → net ${netLow.toFixed(1)}%)</div>
+      <div class="bc-val" style="color:#ff5e5e;">${fmt(valLow)}</div>
+      <div class="bc-sub">After ${years} years</div>
+      <div class="bc-growth" style="color:#ff5e5e;">${multLow}× your money</div>
+    </div>
+    <div class="big-card" style="--card-color:#f5c842;">
+      <div class="bc-label">Base Case (${baseRate}% → net ${netBase.toFixed(1)}%)</div>
+      <div class="bc-val" style="color:#f5c842;">${fmt(valBase)}</div>
+      <div class="bc-sub">After ${years} years · Your target</div>
+      <div class="bc-growth" style="color:#f5c842;">${multBase}× your money</div>
+    </div>
+    <div class="big-card" style="--card-color:#00e5a0;">
+      <div class="bc-label">Optimistic (${highRate}% → net ${netHigh.toFixed(1)}%)</div>
+      <div class="bc-val" style="color:#00e5a0;">${fmt(valHigh)}</div>
+      <div class="bc-sub">After ${years} years</div>
+      <div class="bc-growth" style="color:#00e5a0;">${multHigh}× your money</div>
+    </div>
+    <div class="big-card" style="--card-color:#6b7494;">
+      <div class="bc-label">Real Value (inflation-adjusted)</div>
+      <div class="bc-val" style="color:#a0aec0;">${fmt(valReal)}</div>
+      <div class="bc-sub">Purchasing power in today's ₹</div>
+      <div class="bc-growth" style="color:var(--muted);">At ${infl}% inflation p.a.</div>
+    </div>
+  `;
+
+  // Inflation note
+  const purchasingPowerLoss = ((1 - valReal/valBase)*100).toFixed(0);
+  document.getElementById('infl-note').innerHTML = `
+    <strong>📉 Inflation Reality Check:</strong> Your ${fmt(valBase)} at base case looks impressive — but at ${infl}% annual inflation, that money will have the purchasing power of only <strong>${fmt(valReal)} in today's rupees</strong> (${purchasingPowerLoss}% purchasing power erosion). This is why maximising real returns above inflation matters. Your net real return at base case = <strong>${(netBase - infl).toFixed(1)}% per year</strong> — still very solid for retirement wealth creation.
+  `;
+
+  // Year table
+  const milestones = new Set([5, 10, 15, 20, 25, 30]);
+  let rows = '';
+  const maxYears = Math.min(years, 30);
+
+  // Find first crore crossing year
+  let firstCr = null;
+  let firstTenCr = null;
+  for (let y = 1; y <= maxYears; y++) {
+    const v = compound(PRINCIPAL, netBase, y);
+    if (!firstCr && v >= 10000000) firstCr = y;
+    if (!firstTenCr && v >= 100000000) firstTenCr = y;
+  }
+
+  for (let y = 1; y <= maxYears; y++) {
+    const vLow = compound(PRINCIPAL, netLow, y);
+    const vBase = compound(PRINCIPAL, netBase, y);
+    const vHigh = compound(PRINCIPAL, netHigh, y);
+    const vReal = compound(PRINCIPAL, netBase - infl, y);
+    const isMilestone = milestones.has(y);
+    const isCr = y === firstCr;
+    const isTenCr = y === firstTenCr;
+    const badge = isCr ? '<span class="milestone-badge">FIRST ₹1 CR</span>' : (isTenCr ? '<span class="milestone-badge">₹10 CR</span>' : '');
+
+    rows += `<tr class="${isMilestone ? 'highlight-row' : ''}">
+      <td class="yr">${y}</td>
+      <td style="font-size:0.78rem; color:var(--muted);">${y === years ? '🎯 Target Year' : (isMilestone ? '⭐ Milestone' : '')}</td>
+      <td class="val-low">${fmtShort(vLow)}</td>
+      <td class="val-base">${fmtShort(vBase)}${badge}</td>
+      <td class="val-high">${fmtShort(vHigh)}</td>
+      <td style="font-size:0.78rem; color:var(--muted);">${fmtShort(vReal)}</td>
+    </tr>`;
+  }
+  document.getElementById('year-table-body').innerHTML = rows;
+
+  // Chart
+  drawChart(netLow, netBase, netHigh, netBase - infl, maxYears);
+}
+
+function drawChart(rLow, rBase, rHigh, rReal, maxYears) {
+  const svg = document.getElementById('chart');
+  const W = 900, H = 260;
+  const pad = { top: 20, right: 20, bottom: 30, left: 70 };
+  const cW = W - pad.left - pad.right;
+  const cH = H - pad.top - pad.bottom;
+
+  const maxVal = compound(PRINCIPAL, rHigh, maxYears);
+  const xScale = y => pad.left + (y / maxYears) * cW;
+  const yScale = v => pad.top + cH - (v / maxVal) * cH;
+
+  function makePath(rate, color, dash='') {
+    let d = `M ${xScale(0)} ${yScale(PRINCIPAL)}`;
+    for (let y = 0.5; y <= maxYears; y += 0.5) {
+      const v = compound(PRINCIPAL, rate, y);
+      d += ` L ${xScale(y)} ${yScale(v)}`;
+    }
+    return `<path d="${d}" fill="none" stroke="${color}" stroke-width="2.5" stroke-linecap="round" ${dash ? `stroke-dasharray="${dash}"` : ''} />`;
+  }
+
+  function makeArea(rate, color) {
+    let d = `M ${xScale(0)} ${yScale(PRINCIPAL)}`;
+    for (let y = 0.5; y <= maxYears; y += 0.5) {
+      d += ` L ${xScale(y)} ${yScale(compound(PRINCIPAL, rate, y))}`;
+    }
+    d += ` L ${xScale(maxYears)} ${yScale(0)} L ${xScale(0)} ${yScale(0)} Z`;
+    return `<path d="${d}" fill="${color}" opacity="0.05" />`;
+  }
+
+  // Y-axis labels
+  let yLabels = '';
+  const steps = 5;
+  for (let i = 0; i <= steps; i++) {
+    const v = (maxVal / steps) * i;
+    const y = yScale(v);
+    yLabels += `<text x="${pad.left - 8}" y="${y + 4}" text-anchor="end" fill="#6b7494" font-size="10" font-family="IBM Plex Mono">${fmtShort(v)}</text>`;
+    yLabels += `<line x1="${pad.left}" y1="${y}" x2="${W - pad.right}" y2="${y}" stroke="#252d42" stroke-width="1" />`;
+  }
+
+  // X-axis labels
+  let xLabels = '';
+  const xStep = maxYears <= 15 ? 1 : maxYears <= 20 ? 5 : 5;
+  for (let y = 0; y <= maxYears; y += xStep) {
+    xLabels += `<text x="${xScale(y)}" y="${H - 4}" text-anchor="middle" fill="#6b7494" font-size="10" font-family="IBM Plex Mono">Yr ${y}</text>`;
+  }
+
+  svg.innerHTML = `
+    ${makeArea(rHigh, '#00e5a0')}
+    ${makeArea(rBase, '#f5c842')}
+    ${makeArea(rLow, '#ff5e5e')}
+    ${yLabels}
+    ${xLabels}
+    ${makePath(rLow, '#ff5e5e')}
+    ${makePath(rBase, '#f5c842')}
+    ${makePath(rHigh, '#00e5a0')}
+    ${makePath(rReal, '#f5c842', '6,4')}
+  `;
+}
+
+update();
+</script>
+</body>
+</html>
